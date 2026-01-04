@@ -36,103 +36,48 @@
         }
         .keyword-group { margin-bottom: 15px; }
         .keyword-group h3 { margin-bottom: 5px; color: #c0392b; }
-        .keybert-keyword {
-            display: inline-block; background: #d1e7dd; color: #0f5132;
-            padding: 6px 12px; margin: 4px; border-radius: 20px;
-            font-size: 14px; font-weight: bold;
+
+        /* AUTH */
+        .auth-container {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: none; /* 🔧 FIX: hide so output is visible */
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
         }
-        table.entity-table {
-            width: 100%; border-collapse: collapse; margin-top: 10px;
+        .auth-card {
+            background: rgba(255,255,255,0.95);
+            padding: 35px;
+            width: 360px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
         }
-        table.entity-table th, table.entity-table td {
-            border: 1px solid #ccc; padding: 8px; text-align: left;
+        .auth-card input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
         }
-        table.entity-table th {
-            background: #f0f0f0; color: #2c3e50;
+        .auth-card button {
+            width: 100%;
+            padding: 12px;
+            background: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 8px;
         }
-        @media (max-width: 600px) {
-            .result-box { padding: 15px; margin: 0 10px 20px; }
-            input[type=file], input[type=submit], select { padding: 10px; }
-        }
-        /* ================= AUTH STYLES ================= */
-.auth-container {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
-
-.auth-card {
-    background: rgba(255,255,255,0.95);
-    padding: 35px;
-    width: 360px;
-    border-radius: 15px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-    animation: fadeIn 0.6s ease;
-}
-
-.auth-card h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #2c3e50;
-}
-
-.auth-card input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 15px;
-}
-
-.auth-card button {
-    width: 100%;
-    padding: 12px;
-    background: linear-gradient(135deg, #2980b9, #6dd5fa);
-    color: white;
-    font-size: 16px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.auth-card button:hover {
-    opacity: 0.9;
-}
-
-.switch-text {
-    text-align: center;
-    margin-top: 15px;
-    font-size: 14px;
-}
-
-.switch-text span {
-    color: #2980b9;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
-
     </style>
 </head>
+
 <body>
 
 <h1>📄 Smart Document Extractor & Field Identifier</h1>
 
-<!-- Upload Form -->
 <form method="post" enctype="multipart/form-data">
     <label><strong>Select a document:</strong></label>
     <input type="file" name="document" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg" required>
 
-    <!-- 🌍 Language Selection -->
     <label><strong>Select target language:</strong></label>
     <select name="lang">
         <option value="en" {% if target_lang=='en' %}selected{% endif %}>English</option>
@@ -156,24 +101,22 @@
     <input type="submit" value="Upload & Analyze">
 </form>
 
-<!-- Detected Field -->
 {% if detected_field %}
 <div class="result-box">
     <h2>🧠 Detected Field: <span class="field-detected">{{ detected_field }}</span></h2>
 </div>
 {% endif %}
 
-<!-- Extracted Keywords -->
 {% if extracted %}
 <div class="result-box">
-    <h2>🔑 Extracted Keywords:</h2>
-    {% for group, kw_list in extracted.items() %}
-        {% if kw_list %}
+    <h2>🔑 Extracted Keywords</h2>
+    {% for group, items in extracted.items() %}
+        {% if items %}
         <div class="keyword-group">
-            <h3>{{ group }}:</h3>
+            <h3>{{ group }}</h3>
             <ul class="keyword-list">
-                {% for keyword in kw_list %}
-                    <li>{{ keyword }}</li>
+                {% for item in items %}
+                    <li>{{ item }}</li>
                 {% endfor %}
             </ul>
         </div>
@@ -182,17 +125,16 @@
 </div>
 {% endif %}
 
-<!-- 🌍 Translated Keywords -->
 {% if translated_keywords %}
 <div class="result-box">
-    <h2>🌐 Translated Keywords ({{ target_lang }}):</h2>
-    {% for group, kw_list in translated_keywords.items() %}
-        {% if kw_list %}
+    <h2>🌐 Translated Keywords ({{ target_lang }})</h2>
+    {% for group, items in translated_keywords.items() %}
+        {% if items %}
         <div class="keyword-group">
-            <h3>{{ group }}:</h3>
+            <h3>{{ group }}</h3>
             <ul class="keyword-list">
-                {% for keyword in kw_list %}
-                    <li>{{ keyword }}</li>
+                {% for item in items %}
+                    <li>{{ item }}</li>
                 {% endfor %}
             </ul>
         </div>
@@ -201,215 +143,54 @@
 </div>
 {% endif %}
 
-<!-- KeyBERT Keywords -->
-{% if keybert_keywords %}
-<div class="result-box">
-    <h2>✨ KeyBERT Keywords (Summary):</h2>
-    {% for kw in keybert_keywords %}
-        <span class="keybert-keyword">{{ kw }}</span>
-    {% endfor %}
-</div>
-{% endif %}
-
-<!-- 📝 Summarized Texts -->
 {% if ex_summary %}
 <div class="result-box">
-    <h2>📝 Extractive Summary (English):</h2>
+    <h2>📝 Extractive Summary</h2>
     <pre>{{ ex_summary }}</pre>
 </div>
 {% endif %}
 
 {% if translated_ex_summary and target_lang != 'en' %}
 <div class="result-box">
-    <h2>🌐 Extractive Summary ({{ target_lang }}):</h2>
+    <h2>🌐 Translated Summary</h2>
     <pre>{{ translated_ex_summary }}</pre>
 </div>
 {% endif %}
 
-{% if ab_summary %}
-<div class="result-box">
-    <h2>📝 Abstractive Summary (English):</h2>
-    <pre>{{ ab_summary }}</pre>
-</div>
-{% endif %}
-
-{% if translated_ab_summary and target_lang != 'en' %}
-<div class="result-box">
-    <h2>🌐 Abstractive Summary ({{ target_lang }}):</h2>
-    <pre>{{ translated_ab_summary }}</pre>
-</div>
-{% endif %}
-
-<!-- Extracted Text -->
 {% if full_text %}
 <div class="result-box">
-    <h2>📜 Extracted Text:</h2>
+    <h2>📜 Extracted Text</h2>
     <pre>{{ full_text }}</pre>
 </div>
 {% endif %}
 
-<!-- 🌍 Translated Text -->
 {% if translated_text and target_lang != 'en' %}
 <div class="result-box">
-    <h2>🌐 Translated Text ({{ target_lang }}):</h2>
+    <h2>🌍 Translated Text</h2>
     <pre>{{ translated_text }}</pre>
 </div>
 {% endif %}
-<hr>
-<h2>Uploaded Files</h2>
-<div class="uploaded-section">
-  {% if files_by_category %}
-    {% for category, files in files_by_category.items() %}
-      <h3>{{ category }}</h3>
-      <ul>
-        {% for file in files %}
-            {% if file %}
-            <li><a href="{{ url_for('uploaded_file', filename=file) }}" target="_blank">{{ file }}</a></li>
-            {% endif %}
-        {% endfor %}
-      </ul>
-    {% endfor %}
-  {% else %}
-    <p>No files uploaded yet.</p>
-  
-
-  {% endif %}
-</div>
-{% if extracted_text %}
-<div class="card">
-  <h3>📄 Extracted Text</h3>
-  <p>{{ extracted_text }}</p>
-  <audio controls>
-    <source src="{{ url_for('static', filename=audio_extracted) }}" type="audio/mpeg">
-  </audio>
-</div>
-{% endif %}
-
-{% if keywords %}
-<div class="card">
-  <h3>🔑 Keywords</h3>
-  <p>{{ keywords }}</p>
-  <audio controls>
-    <source src="{{ url_for('static', filename=audio_keywords) }}" type="audio/mpeg">
-  </audio>
-</div>
-{% endif %}
-
-{% if summary %}
-<div class="card">
-  <h3>📝 Summary</h3>
-  <p>{{ summary }}</p>
-  <audio controls>
-    <source src="{{ url_for('static', filename=audio_summary) }}" type="audio/mpeg">
-  </audio>
-</div>
-{% endif %}
-
-{% if translation %}
-<div class="card">
-  <h3>🌍 Translation</h3>
-  <p>{{ translation }}</p>
-  <audio controls>
-    <source src="{{ url_for('static', filename=audio_translation) }}" type="audio/mpeg">
-  </audio>
-</div>
-{% endif %}
-
-
-
-<!-- Display Extracted Keywords -->
-<h2>Extracted Keywords</h2>
-
-{% if extracted %}
-    <ul>
-    {% for k, v in extracted.items() %}
-        <li>
-            <strong>{{ k }}:</strong>
-            {% if v is iterable and v|length > 0 %}
-                {{ v | join(", ") }}
-            {% else %}
-                None
-            {% endif %}
-        </li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No keywords extracted.</p>
-{% endif %}
-
-
-<hr>
-<h2>🎧 Full Narration</h2>
 
 {% if audio_combined %}
-<audio controls>
-  <source src="{{ url_for('static', filename=audio_combined) }}" type="audio/mpeg">
-</audio>
+<div class="result-box">
+    <h2>🎧 Full Narration</h2>
+    <audio controls>
+        <source src="{{ url_for('static', filename=audio_combined) }}" type="audio/mpeg">
+    </audio>
+</div>
 {% endif %}
 
-<!-- ================= AUTH SECTION ================= -->
+<!-- AUTH (kept, hidden) -->
 <div class="auth-container" id="authContainer">
     <div class="auth-card">
-        <h2 id="authTitle">🔐 Login</h2>
-
-        <!-- Login Form -->
-        <form id="loginForm">
-            <input type="email" placeholder="Email" required>
-            <input type="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-            <p class="switch-text">
-                Don’t have an account?
-                <span onclick="showSignup()">Create one</span>
-            </p>
-        </form>
-
-        <!-- Signup Form -->
-        <form id="signupForm" style="display:none;">
-            <input type="text" placeholder="Full Name" required>
-            <input type="email" placeholder="Email" required>
-            <input type="password" placeholder="Password" required>
-            <input type="password" placeholder="Confirm Password" required>
-            <button type="submit">Sign Up</button>
-            <p class="switch-text">
-                Already have an account?
-                <span onclick="showLogin()">Login</span>
-            </p>
-        </form>
+        <h2>🔐 Login</h2>
+        <input type="email" placeholder="Email">
+        <input type="password" placeholder="Password">
+        <button onclick="document.getElementById('authContainer').style.display='none'">
+            Login
+        </button>
     </div>
 </div>
-
-
-<script>
-function showSignup() {
-    document.getElementById("loginForm").style.display = "none";
-    document.getElementById("signupForm").style.display = "block";
-    document.getElementById("authTitle").innerText = "📝 Sign Up";
-}
-
-function showLogin() {
-    document.getElementById("signupForm").style.display = "none";
-    document.getElementById("loginForm").style.display = "block";
-    document.getElementById("authTitle").innerText = "🔐 Login";
-}
-
-/* TEMPORARY: Hide auth after login */
-document.getElementById("loginForm").onsubmit = function(e) {
-    e.preventDefault();
-    document.getElementById("authContainer").style.display = "none";
-};
-
-document.getElementById("signupForm").onsubmit = function(e) {
-    e.preventDefault();
-    alert("Signup successful! Please login.");
-    showLogin();
-};
-</script>
-
-
-
-
-
-
 
 </body>
 </html>
