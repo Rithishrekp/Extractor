@@ -191,6 +191,19 @@
         </button>
     </div>
 </div>
+<h3>Your Uploaded Files</h3>
+
+{% if uploaded_files %}
+    <ul>
+    {% for file in uploaded_files %}
+        <li>
+  <a href="{{ url_for('myfile', filename=file) }}">{{ file }}</a>
+</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No uploads yet</p>
+{% endif %}
 
 </body>
 </html>
