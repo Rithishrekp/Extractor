@@ -9,63 +9,77 @@
             background-color: #f2f2f2;
         }
         h1 { text-align: center; color: #2c3e50; }
+
         form {
-            background: #fff; padding: 20px; border-radius: 10px;
-            max-width: 600px; margin: 0 auto 30px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: 0 auto 30px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
+
         input[type=file], input[type=submit], select {
-            width: 100%; padding: 12px; margin: 8px 0 16px;
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 16px;
         }
+
         .result-box {
-            background: #fff; padding: 20px; border-radius: 10px;
-            max-width: 900px; margin: 0 auto 30px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 900px;
+            margin: 0 auto 30px;
             box-shadow: 0 0 8px rgba(0,0,0,0.1);
         }
-        .result-box h2 { color: #2980b9; margin-bottom: 10px; }
+
+        .result-box h2 { color: #2980b9; }
         pre {
-            background: #f9f9f9; padding: 10px; white-space: pre-wrap;
+            background: #f9f9f9;
+            padding: 10px;
+            white-space: pre-wrap;
             border-left: 4px solid #3498db;
         }
-        .field-detected { font-weight: bold; color: green; }
-        .keyword-list { list-style: none; padding: 0; margin: 0; }
-        .keyword-list li {
-            display: inline-block; background: tan; color: #333;
-            padding: 6px 12px; margin: 4px; border-radius: 20px;
-            font-size: 14px; font-weight: bold;
-        }
-        .keyword-group { margin-bottom: 15px; }
-        .keyword-group h3 { margin-bottom: 5px; color: #c0392b; }
 
-        /* AUTH */
+        .field-detected {
+            font-weight: bold;
+            color: green;
+        }
+
+        .keyword-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .keyword-list li {
+            display: inline-block;
+            background: tan;
+            padding: 6px 12px;
+            margin: 4px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .keyword-group { margin-bottom: 15px; }
+        .keyword-group h3 { color: #c0392b; }
+
+        /* AUTH (hidden) */
         .auth-container {
             position: fixed;
             inset: 0;
             background: linear-gradient(135deg, #667eea, #764ba2);
-            display: none; /* 🔧 FIX: hide so output is visible */
+            display: none;
             align-items: center;
             justify-content: center;
             z-index: 9999;
         }
         .auth-card {
-            background: rgba(255,255,255,0.95);
+            background: white;
             padding: 35px;
             width: 360px;
             border-radius: 15px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-        }
-        .auth-card input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-        }
-        .auth-card button {
-            width: 100%;
-            padding: 12px;
-            background: #2980b9;
-            color: white;
-            border: none;
-            border-radius: 8px;
         }
     </style>
 </head>
@@ -103,7 +117,9 @@
 
 {% if detected_field %}
 <div class="result-box">
-    <h2>🧠 Detected Field: <span class="field-detected">{{ detected_field }}</span></h2>
+    <h2>🧠 Detected Field:
+        <span class="field-detected">{{ detected_field }}</span>
+    </h2>
 </div>
 {% endif %}
 
@@ -171,6 +187,15 @@
 </div>
 {% endif %}
 
+{% if receipt_fields %}
+<div class="result-box">
+    <h2>🧾 Receipt Details</h2>
+    {% for k, v in receipt_fields.items() %}
+        <p><strong>{{ k }}:</strong> {{ v }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+
 {% if audio_combined %}
 <div class="result-box">
     <h2>🎧 Full Narration</h2>
@@ -180,29 +205,17 @@
 </div>
 {% endif %}
 
-<!-- AUTH (kept, hidden) -->
-<div class="auth-container" id="authContainer">
-    <div class="auth-card">
-        <h2>🔐 Login</h2>
-        <input type="email" placeholder="Email">
-        <input type="password" placeholder="Password">
-        <button onclick="document.getElementById('authContainer').style.display='none'">
-            Login
-        </button>
-    </div>
-</div>
-<h3>Your Uploaded Files</h3>
-
 {% if uploaded_files %}
+<div class="result-box">
+    <h2>📂 Your Uploaded Files</h2>
     <ul>
-    {% for file in uploaded_files %}
-        <li>
-  <a href="{{ url_for('myfile', filename=file) }}">{{ file }}</a>
-</li>
-    {% endfor %}
+        {% for file in uploaded_files %}
+            <li>
+                <a href="{{ url_for('myfile', filename=file) }}">{{ file }}</a>
+            </li>
+        {% endfor %}
     </ul>
-{% else %}
-    <p>No uploads yet</p>
+</div>
 {% endif %}
 
 </body>
