@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, session
+from flask import Flask, request, render_template, redirect, url_for, session, send_from_directory
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
@@ -21,6 +21,7 @@ app.secret_key = "super_secret_key"
 DB_PATH = "instance/users.db"
 
 def init_db():
+    os.makedirs("instance", exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     cur.execute("""
@@ -85,6 +86,7 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for("login"))
+
 @app.route("/myfile/<filename>")
 def myfile(filename):
     if "user" not in session:
@@ -93,19 +95,18 @@ def myfile(filename):
     user_folder = os.path.join(UPLOAD_FOLDER, session["user"])
     return send_from_directory(user_folder, filename)
 
-
 # ---------------- MAIN APP ----------------
 @app.route("/", methods=["GET", "POST"])
 def index():
-    user_email = session["user"]
-    user_folder = os.path.join(UPLOAD_FOLDER, user_email)
-
-    uploaded_files = []
-    if os.path.exists(user_folder):
-         uploaded_files = os.listdir(user_folder)
-
+    # ✅ LOGIN CHECK FIRST
     if "user" not in session:
         return redirect(url_for("login"))
+
+    user_email = session.get("user")
+    user_folder = os.path.join(UPLOAD_FOLDER, user_email)
+    os.makedirs(user_folder, exist_ok=True)
+
+    uploaded_files = os.listdir(user_folder)
 
     detected_field = None
     extracted = None
@@ -123,11 +124,6 @@ def index():
 
         if file and allowed_file(file.filename):
             name = secure_filename(file.filename)
-            user_email = session["user"]
-
-            user_folder = os.path.join(UPLOAD_FOLDER, user_email)
-            os.makedirs(user_folder, exist_ok=True)
-
             path = os.path.join(user_folder, name)
             file.save(path)
 
@@ -155,18 +151,18 @@ def index():
             )
 
     return render_template(
-    "index.html",
-    detected_field=detected_field,
-    extracted=extracted,
-    translated_keywords=translated_keywords,
-    ex_summary=ex_summary,
-    translated_ex_summary=translated_ex_summary,
-    full_text=full_text,
-    translated_text=translated_text,
-    audio_combined=audio_combined,
-    target_lang=lang,
-    uploaded_files=uploaded_files
-)
+        "index.html",
+        detected_field=detected_field,
+        extracted=extracted,
+        translated_keywords=translated_keywords,
+        ex_summary=ex_summary,
+        translated_ex_summary=translated_ex_summary,
+        full_text=full_text,
+        translated_text=translated_text,
+        audio_combined=audio_combined,
+        target_lang=lang,
+        uploaded_files=uploaded_files
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
