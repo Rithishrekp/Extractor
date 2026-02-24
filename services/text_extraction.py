@@ -1,8 +1,13 @@
 import os, cv2, fitz, docx, pytesseract
 import numpy as np
 
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-os.environ["TESSDATA_PREFIX"] = r"C:\Program Files\Tesseract-OCR\tessdata"
+import sys
+if sys.platform == 'win32':
+    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    os.environ["TESSDATA_PREFIX"] = r"C:\Program Files\Tesseract-OCR\tessdata"
+else:
+    # On Linux, tesseract should be installed globally and available in PATH
+    pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 
 def extract_text(file_path: str) -> str:
     ext = os.path.splitext(file_path)[1].lower()

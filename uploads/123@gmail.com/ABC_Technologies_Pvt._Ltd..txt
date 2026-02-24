@@ -1,0 +1,40 @@
+ABC Technologies Pvt. Ltd.
+123 Business Park Road
+Bangalore, Karnataka, 560001
+Phone: +91-9876543210
+Email: hr@abctech.com
+
+Salary Slip for the Month of July 2025
+Employee Name: Rithika Shre
+Employee ID: EMP1024
+Designation: Software Engineer
+Department: Development
+
+Date of Joining: 15 March 2022
+PAN Number: APLPS1234K
+Bank Account Number: 123456789012
+IFSC Code: HDFC0001234
+Salary Payment Date: 31 July 2025
+
+Earnings:
+- Basic Salary: ₹45,000
+- House Rent Allowance (HRA): ₹18,000
+- Transport Allowance: ₹3,000
+- Medical Allowance: ₹2,000
+- Special Allowance: ₹7,000
+Gross Salary: ₹75,000
+
+Deductions:
+- Provident Fund (PF): ₹5,400
+- Professional Tax: ₹200
+- Income Tax (TDS): ₹4,500
+Total Deductions: ₹10,100
+
+Net Salary (in words): Sixty Four Thousand Nine Hundred Rupees Only
+Net Salary (in figures): ₹64,900
+
+Place of Issue: Bangalore
+Authorized Signatory: HR Manager
+Date: 31 July 2025
+
+Confidential: This document is generated for official purposes only.
