@@ -16,27 +16,32 @@ from services.classification import detect_document_field
 from services.language_detection import detect_language
 from services.receipt_extraction import extract_receipt_fields
 from services.tts import speak
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.secret_key = "super_secret_key"
 
 # ================= DATABASE =================
-DB_PATH = "instance/users.db"
+# We read the connection string from Environment Variables (set in Kubernetes)
+# If it's not set (like when you are testing locally), it will fall back to using SQLite!
+# A PostgreSQL URI looks like: postgresql://username:password@localhost:5432/my_database
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.Text, nullable=False)
 
 def init_db():
-    os.makedirs("instance", exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL
-        )
-    """)
-    conn.commit()
-    conn.close()
+    with app.app_context():
+        if app.config['SQLALCHEMY_DATABASE_URI'].startswith('sqlite'):
+            os.makedirs("instance", exist_ok=True)
+        db.create_all()
 
 init_db()
 
@@ -51,18 +56,17 @@ def signup():
         email = request.form["email"]
         password = generate_password_hash(request.form["password"])
 
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+             return "User already exists"
+
         try:
-            conn = sqlite3.connect(DB_PATH)
-            cur = conn.cursor()
-            cur.execute(
-                "INSERT INTO users (email, password) VALUES (?, ?)",
-                (email, password)
-            )
-            conn.commit()
-            conn.close()
+            new_user = User(email=email, password=password)
+            db.session.add(new_user)
+            db.session.commit()
             return redirect(url_for("login"))
-        except:
-            return "User already exists"
+        except Exception as e:
+            return f"An error occurred: {str(e)}"
 
     return render_template("signup.html")
 
@@ -72,13 +76,9 @@ def login():
         email = request.form["email"]
         password = request.form["password"]
 
-        conn = sqlite3.connect(DB_PATH)
-        cur = conn.cursor()
-        cur.execute("SELECT password FROM users WHERE email=?", (email,))
-        user = cur.fetchone()
-        conn.close()
+        user = User.query.filter_by(email=email).first()
 
-        if user and check_password_hash(user[0], password):
+        if user and check_password_hash(user.password, password):
             session["user"] = email
             return redirect(url_for("index"))
         return "Invalid email or password"
